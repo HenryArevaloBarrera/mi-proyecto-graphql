@@ -1,29 +1,56 @@
-import fs from "fs";
-import { dishes } from "../util/dishes.mjs";
+import { Dish } from "../models/Dish.mjs";
 
-function saveChanges() {
-  const content = `export const dishes = ${JSON.stringify(dishes, null, 2)};\n`;
-  fs.writeFileSync("./util/dishes.mjs", content, "utf-8");
-  console.log("💾 Archivo dishes.mjs actualizado correctamente.");
-}
+export const Create = async (args) => {
+  try {
+    const newDish = new Dish(args);
+    return await newDish.save();
+  } catch (error) {
+    console.error("Error al crear el plato:", error.message);
+    return null;
+  }
+};
 
-function getAll() {
-  return dishes;
-}
+export const getAll = async () => {
+  try {
+    return await Dish.find();
+  } catch (error) {
+    console.error("Error al obtener los platos:", error.message);
+    return [];
+  }
+};
 
-function getById(id) {
-  return dishes.find((dish) => dish.id === Number(id));
-}
+export const getById = async (id) => {
+  try {
+    return await Dish.findById(id);
+  } catch (error) {
+    console.error("Error al buscar el plato:", error.message);
+    return null;
+  }
+};
 
-function Update(id, name, price) {
-  const dish = dishes.find((d) => d.id === Number(id));
-  if (!dish) throw new Error(`No se encontró el plato con id ${id}`);
+export const getBetweenCalories = async (min, max) => {
+  try {
+    return await Dish.find({ calories: { $gte: min, $lte: max } });
+  } catch (error) {
+    console.error("Error al filtrar por calorías:", error.message);
+    return [];
+  }
+};
 
-  if (name !== undefined) dish.name = name;
-  if (price !== undefined) dish.price = price;
+export const Update = async (id, data) => {
+  try {
+    return await Dish.findByIdAndUpdate(id, data, { new: true });
+  } catch (error) {
+    console.error("Error al actualizar el plato:", error.message);
+    return null;
+  }
+};
 
-  saveChanges();
-  return dish;
-}
-
-export { getAll, getById, Update };
+export const Delete = async (id) => {
+  try {
+    return await Dish.findByIdAndDelete(id);
+  } catch (error) {
+    console.error("Error al eliminar el plato:", error.message);
+    return null;
+  }
+};
